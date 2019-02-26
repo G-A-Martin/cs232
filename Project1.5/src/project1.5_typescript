@@ -1,0 +1,1260 @@
+Script started on Mon 25 Feb 2019 10:50:00 PM EST
+ls
+gam6@maroon31:~/cs232/Project1.5/src$ ls
+CommandLineController.h  main.cpp		TextMenuController.h
+CommandLineInterface.h	 Model.h		TextMenuInterface.h
+main			 project1.5_typescript	Timer.h
+gam6@maroon31:~/cs232/Project1.5/src$ cat main.cpp CommandLineController.h Comma 
+ndLineCo        [Agam6@maroon31:~/cs232/Project1.5/src$ cat main.cpp CommandLineController.h Comma 
+[K[Agam6@maroon31:~/cs232/Project1.5/src$ cat main.cpp CommandLineController.h Comm[K
+
+[K[Agam6@maroon31:~/cs232/Project1.5/src$ cat main.cpp CommandLineController.h Comm                             
+//============================================================================
+// Name        : Project1.5.cpp
+// Author      : Gavin Martin
+// Version     :
+// Copyright   : Plagerism of this will result in death
+//============================================================================
+
+#include <pthread.h>
+#include <iostream>
+#include <iostream>
+#include <stdexcept>
+#include "Timer.h"
+#include <string.h>
+#include <stdlib.h>
+#include <vector>
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/wait.h>
+#include "CommandLineController.h"
+#include "TextMenuController.h"
+using namespace std;
+
+
+
+/*
+g++ Project1.cpp -o main -lpthread -std=c++11
+./main test the world
+ */
+
+
+
+/**
+ * @description: this is the main function, it determines average time to create proccesses and threads
+ */
+int main ( int argc, char *argv[] ) {
+	bool cl_flag = false;
+
+	if(argc > 1){
+		// this isn't processing, its to get the -cl prefix
+		vector<string> argList;
+		for (int i=0; i < argc; i++) {
+			// push every arg into a vector of args
+			argList.push_back( argv[i] );
+			// this gets the prefix flag of the arguments entered
+			string prefix = argList[i].substr(0,3);
+			// this means the command line was specified
+			if(prefix == "-cl"){
+				cl_flag = true;
+			}
+		}
+		if(cl_flag == true){
+			CmdLineCtrl clController(argc, argList);
+			clController.run();
+		} else {
+			TextMenuCtrl txtController(argc);
+			txtController.run();
+		}
+	} else {
+		TextMenuCtrl txtController(argc);
+		txtController.run();
+	}
+	return 0;
+}
+
+gam6@maroon31:~/cs232/Project1.5/src$ ls
+CommandLineController.h  main.cpp		TextMenuController.h
+CommandLineInterface.h	 Model.h		TextMenuInterface.h
+main			 project1.5_typescript	Timer.h
+gam6@maroon31:~/cs232/Project1.5/src$ cat CommandLineController.h
+/* CommandLineController.h provides a command line controller for Project1.5
+ *  Created by: Gavin Martin, for CS 232 at Calvin College.
+ *
+ * CommandLineController.h
+ *
+ *  Created on: Feb 19, 2019
+ *      Author: Gavin martin for cs232 at Calvin college
+ */
+
+#ifndef COMMANDLINECONTROLLER_H_
+#define COMMANDLINECONTROLLER_H_
+
+
+#include "pthread.h"
+#include <iostream>
+#include <iostream>
+#include <stdexcept>
+#include "Timer.h"
+#include <string>
+#include <stdlib.h>
+#include <vector>
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/wait.h>
+#include <bits/stdc++.h>
+#include "Model.h"
+#include "CommandLineInterface.h"
+
+using namespace std;
+
+
+class CmdLineCtrl {
+public:
+	CmdLineCtrl(int numberOfArgs, vector<string> listOfArgs);
+	void run();
+
+private:
+	bool t_flag;
+	bool p_flag;
+	double r_num;
+	int argc;
+	vector<string> argList;
+};
+
+inline
+CmdLineCtrl::CmdLineCtrl(int numberOfArgs, vector<string> listOfArgs) {
+	argc = numberOfArgs;
+	argList = listOfArgs;
+	t_flag = false;
+	p_flag = false;		// if proccesses
+	r_num = 1.0; // number of repetitions
+}
+
+inline
+void CmdLineCtrl::run() {
+	Model model;
+
+	// first create the view:
+	CommandLineInterface view;
+
+	// this grabs the flags from the arglist
+	for(int i=0; i < argc; i++){
+		if(argList[i] == "-p" || argList[i] == "-process"){
+			p_flag = true;
+		} else if (argList[i] == "-t" || argList[i] == "-thread"){
+			t_flag = true;
+		} else if (argList[i].substr(0,2) == "-r"){
+			r_num = atoi( (argList[i].substr(2)).c_str() );
+		}
+	}
+
+	// this declares all variables:
+	double averageProcessTime;		// calculated average proccess creation time
+	double averageThreadTime;		// calculated average thread creation time
+	vector<pid_t> pidList;  // list of all process ids
+	vector<long> tidList; // list of all thread ids
+
+	// this gets information from the model
+	if(p_flag == true){
+		averageProcessTime = model.getAvgProcessTime(r_num);
+		pidList = model.getPids();
+	}
+	if(t_flag == true){
+		averageThreadTime = model.getAvgThreadTime(r_num);
+		tidList = model.getTids();
+	}
+
+	// this sends information to the view in a neat Command line way
+	view.listOffProcessIDs(pidList);
+	view.listOffThreadIDs(tidList);
+	view.say("\nAverage Process Time: " + to_string(averageProcessTime));
+	view.say("\nAverage Thread Time: " + to_string(averageThreadTime ));
+
+
+
+}
+
+
+
+
+
+#endif /* COMMANDLINECONTROLLER_H_ */
+gam6@maroon31:~/cs232/Project1.5/src$ ls
+CommandLineController.h  main.cpp		TextMenuController.h
+CommandLineInterface.h	 Model.h		TextMenuInterface.h
+main			 project1.5_typescript	Timer.h
+gam6@maroon31:~/cs232/Project1.5/src$ cat CommandLineInterface.h
+/*
+ * CommandLineInterface.h
+ *
+ *  Created on: Feb 22, 2019
+ *      Author: Gavin martin for Calvin College cs232
+ */
+
+#ifndef COMMANDLINEINTERFACE_H_
+#define COMMANDLINEINTERFACE_H_
+
+
+
+
+#include "pthread.h"
+#include <iostream>
+#include <iostream>
+#include <stdexcept>
+#include "Timer.h"
+#include <string.h>
+#include <stdlib.h>
+#include <vector>
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/wait.h>
+#include "Model.h"
+
+using namespace std;
+
+
+
+
+class CommandLineInterface {
+public:
+	CommandLineInterface();
+	void say(string aString) const;
+	void listOffProcessIDs(vector<pid_t> pids);
+	void listOffThreadIDs(vector<long> tids);
+
+
+private:
+
+};
+
+
+inline
+CommandLineInterface::CommandLineInterface() {
+ cout << "\nCommandLineController is using the CommandLineInterface\n\n" << endl;
+}
+
+inline
+void CommandLineInterface::say(string aString) const{
+	cout << aString << endl;
+}
+
+inline
+void CommandLineInterface::listOffProcessIDs(vector<pid_t> pids){
+	cout << "\n" << endl;
+	for (unsigned i=0; i < pids.size(); i++){
+		cout << "Hello from Child Process: " << pids[i] << endl;
+	}
+}
+
+inline
+void CommandLineInterface::listOffThreadIDs(vector<long> tids){
+	cout << "\n" << endl;
+	for(unsigned i=0; i < tids.size(); i++){
+		cout << "Hello from Child Thread: " << tids[i] << endl;
+	}
+}
+
+
+#endif /* COMMANDLINEINTERFACE_H_ */
+gam6@maroon31:~/cs232/Project1.5/src$ ls
+CommandLineController.h  main.cpp		TextMenuController.h
+CommandLineInterface.h	 Model.h		TextMenuInterface.h
+main			 project1.5_typescript	Timer.h
+gam6@maroon31:~/cs232/Project1.5/src$ cat TextMi enuController.h
+/* TextMenuController.h provides a text menu controller for Project1.5
+ *  Created by: Gavin Martin, for CS 232 at Calvin College.
+ *
+ * TextMenuController.h
+ *
+ *  Created on: Feb 22, 2019
+ *      Author: Gavin martin
+ */
+
+#ifndef TEXTMENUCONTROLLER_H_
+#define TEXTMENUCONTROLLER_H_
+
+
+#include "pthread.h"
+#include <iostream>
+#include <iostream>
+#include <stdexcept>
+#include "Timer.h"
+#include <string.h>
+#include <stdlib.h>
+#include <vector>
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/wait.h>
+#include "Model.h"
+#include "TextMenuInterface.h"
+
+using namespace std;
+
+
+
+
+class TextMenuCtrl {
+public:
+	TextMenuCtrl(int argc);
+	void run();
+
+private:
+	// flags
+	bool t_flag;
+	bool p_flag;
+	double r_num;
+};
+
+
+inline
+TextMenuCtrl::TextMenuCtrl(int argc) {
+	t_flag = false;
+	p_flag = false;
+	r_num = 1.0;
+}
+
+inline
+// this runs the textController
+void TextMenuCtrl::run(){
+
+	TextMenuInterface view;
+	if(view.askIf("Process") == true){
+		p_flag = true;
+	}
+	if(view.askIf("Thread") == true) {
+		t_flag = true;
+	}
+	Model model;
+	// if the user wanted a thread
+	if(t_flag == true){
+		// this gets repetitions from the view
+		r_num = view.askForRepetitions();
+		// this computes the data from the model
+		double averageThreadTime = model.getAvgThreadTime(r_num);
+		// this gets the threadIDs from the model
+		vector<long> tidList = model.getTids();
+		// this prints off the thread ids from the model
+		view.listOffThreadIDs(tidList);
+		view.say("Average Thread Time: " + to_string(averageThreadTime ));
+	}
+	// if the user wanted a process
+	if (p_flag == true) {
+		// this gets the average process time for a process
+		double averageProcessTime = model.getAvgProcessTime(r_num);
+		//gets process ids
+		vector<pid_t> pidList = model.getPids();
+		// sends that data to user
+		view.listOffProcessIDs(pidList);
+		view.say("Average Process Time: " + to_string(averageProcessTime));
+	}
+
+
+
+}
+
+
+
+#endif /* TEXTMENUCONTROLLER_H_ */
+gam6@maroon31:~/cs232/Project1.5/src$ ls
+CommandLineController.h  main.cpp		TextMenuController.h
+CommandLineInterface.h	 Model.h		TextMenuInterface.h
+main			 project1.5_typescript	Timer.h
+gam6@maroon31:~/cs232/Project1.5/src$ cat TextMenuInterface.h
+/*
+ * TextMenuInterface.h
+ *
+ *  Created on: Feb 22, 2019
+ *      Author: Gavin Martin @ cs232 at calvin college
+ */
+
+#ifndef TEXTMENUINTERFACE_H_
+#define TEXTMENUINTERFACE_H_
+
+
+
+#include "pthread.h"
+#include <iostream>
+#include <iostream>
+#include <stdexcept>
+#include "Timer.h"
+#include <string.h>
+#include <stdlib.h>
+#include <vector>
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/wait.h>
+#include "Model.h"
+#include "TextMenuController.h"
+#include <stdlib.h>
+
+using namespace std;
+
+
+
+
+class TextMenuInterface {
+public:
+	TextMenuInterface();
+	void say(string aString);
+	bool askIf(string aString);
+	int askForRepetitions();
+	void listOffProcessIDs(vector<pid_t> pids);
+	void listOffThreadIDs(vector<long> tids);
+
+
+private:
+	bool validResponse(string response);
+	long isNumber(string response);
+
+};
+
+
+inline
+TextMenuInterface::TextMenuInterface() {
+
+}
+
+inline
+// this makes the textMenuInterface say something
+void TextMenuInterface::say(string aString){
+	cout << aString << endl;
+}
+
+inline
+// this asks the user a yes or no question which will be stored on the controller
+bool TextMenuInterface::askIf(string aString) {
+	string response;
+	cout << "\n\n\n\n\n\n\n===============================================" << endl;
+	cout << "Welcome to the User-Friendly Text Interface" << endl;
+	cout << "-----------------------------------------------" << endl;
+	cout << "\n Create a " << aString << "?" << endl;
+	cout << "  -- 1.) Yes" << endl;
+	cout << "  -- 0.) No\n" << endl;
+	cout << " (Please Enter a 1 or 0)" << endl;
+	cout << "\n ---> " << flush;
+	cin >> response;
+	while(true){
+		if(validResponse(response) == true){
+			cout << "\nInput Accepted" << endl;
+			if(response == "1"){
+				return true;
+			} else if(response == "0"){
+				return false;
+			}
+		} else {
+			cout << " (Please Enter a 1 or 0)" << endl;
+			cout << "\n ---> " << flush;
+			cin >> response;
+		}
+	}
+	cout << "\n\n===============================================" << endl;
+}
+
+// this asks the textMenuInterface how many repetitions it wants to get the average of
+int TextMenuInterface::askForRepetitions() {
+	string response;
+	cout << "\n\n\n\n\n\n\n===============================================" << endl;
+	cout << "Welcome to the User-Friendly Text Interface" << endl;
+	cout << "-----------------------------------------------" << endl;
+	cout << "\n How many repetitions would you like?" << endl;
+	cout << "\n ---> " << flush;
+	cin >> response;
+	while(true){
+		if(isNumber(response) != 0){
+			cout << "\nInput Accepted" << endl;
+			return isNumber(response);
+		} else {
+			cout << " Please enter a whole number" << endl;
+			cout << "\n ---> " << flush;
+			cin >> response;
+		}
+	}
+	cout << "\n\n===============================================" << endl;
+}
+
+inline
+// this determines if its a number, it returns -1 if its not, or the string converted to a long if it is a valid number
+long TextMenuInterface::isNumber(string response){
+	char* p;
+	long converted = strtol(response.c_str(), &p, 10);
+	if (*p){
+		return -1;
+	} else {
+		return converted;
+	}
+}
+
+
+inline
+// this determines if the response was a 1 or a 0, the two valid responses
+bool TextMenuInterface::validResponse(string response) {
+	if(response == "0" || response == "1"){
+		return true;
+	} else {
+		return false;
+	}
+}
+
+
+inline
+// this lists off all the process ids stored from the array
+void TextMenuInterface::listOffProcessIDs(vector<pid_t> pids){
+	for (unsigned i=0; i < pids.size(); i++){
+		cout << "Hello from Child Process: " << pids[i] << endl;
+	}
+}
+
+
+inline
+// this lists off all the thread ids stored from the array
+void TextMenuInterface::listOffThreadIDs(vector<long> tids){
+	for(unsigned i=0; i < tids.size(); i++){
+		cout << "Hello from Child Thread: " << tids[i] << endl;
+	}
+}
+
+#endif /* TEXTMENUINTERFACE_H_ */
+gam6@maroon31:~/cs232/Project1.5/src$ ls
+CommandLineController.h  main.cpp		TextMenuController.h
+CommandLineInterface.h	 Model.h		TextMenuInterface.h
+main			 project1.5_typescript	Timer.h
+gam6@maroon31:~/cs232/Project1.5/src$ cat Mode.h  l.h
+/*
+ * Model.h provides a model to proccess data from the controllers
+ *  Created by: Gavin Martin, for CS 232 at Calvin College.
+ *
+ * Model.h
+ *
+ *  Created on: Feb 19, 2019
+ *      Author: Gavin martin
+ */
+
+#include <pthread.h>
+#include <iostream>
+#include <iostream>
+#include <stdexcept>
+#include "Timer.h"
+#include <string.h>
+#include <stdlib.h>
+#include <vector>
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/wait.h>
+#include <sys/types.h>
+#include <bits/stdc++.h>
+
+
+
+#ifndef MODEL_H_
+#define MODEL_H_
+
+
+class Model {
+public:
+	Model();
+	// proccess functions
+	double getAvgProcessTime(double repetitions);
+	double createProcess( double repetitions);
+	// thread functions
+	double getAvgThreadTime(double repetitions);
+	double createThread( int repetitions);
+	// store ids into an array functions
+	vector<pid_t> getPids() const;
+	vector<long> getTids() const;
+
+
+
+
+private:
+	NanoTimer pTimer;
+	NanoTimer tTimer;
+	vector<long> threadIDs;
+	vector<pid_t> processIDs;
+};
+
+// starts the model creation
+Model::Model(){
+}
+
+
+
+/**
+ * @param: double repetitions - the nth process created in the loop
+ * @description: this creates a process, asks it to say something, and terminates
+ * @returns: the recursive function that eventually gives the total time needed to create all processes
+ */
+double Model::createProcess( double repetitions) {
+	// timer is reset to assure its holds a valid time
+	pTimer.reset();
+	// timer is started to record fork time
+	pTimer.start();
+	// a child process is forked from the parent
+	pid_t pid = fork();
+	// the timer is stopped
+	pTimer.stop();
+	// if it hasn't reached the n repititions specified in r, and its a child:
+	if(pid == 0 && repetitions > 0){
+		// print out the Proccess ID of the child
+		processIDs.push_back(getpid());
+		//cout << "Hello from the child process (PID = " << getpid() << ")" << endl;
+		// recursivly call it again with a counter of 1 less
+		return createProcess(repetitions - 1);
+		// if one repetition was specified, use the child from that fork
+	} else if (pid != 0){
+		exit(0);
+		// if its the last child
+	} else if (pid == 0 || repetitions == 0){
+		return pTimer.asDouble();
+	}
+}
+
+
+/**
+ * @param: double repetitions - the nth process created in the loop
+ * @description: this starts the process to get average processing time
+ */
+inline
+double Model::getAvgProcessTime(double repetitions) {
+	// timer is reset to assure its holds a valid time
+	pTimer.reset();
+	processIDs.clear();
+	double totalTime = createProcess(repetitions);
+	return (totalTime / repetitions);
+}
+
+inline
+// a getter function to give controllers all processIds
+vector<pid_t> Model::getPids() const {
+	return processIDs;
+}
+
+inline
+// a getter function to give controllers all threadIds
+vector<long> Model::getTids() const {
+	return threadIDs;
+}
+
+
+
+/**
+ * @param: void *id: this is the threadID
+ * @description: this returns the id to be added to a vector upon creation
+ */
+void* declareThread(void* id){
+	long tid;
+	tid = (long)id;
+	//cout << "\n" << "Hello from the child thread (TID = " << tid << ")" << endl;
+	return (void *) tid;
+
+}
+
+
+
+/**
+ * @param: int repetitions - the rn of repititions to create
+ * @description: this creates repetitions number of threads recursively
+ */
+inline
+double Model::createThread( int repetitions) {
+	// err is created for error handling
+	int err;
+	long i;
+	// threads are placed in an array
+	pthread_t threads[repetitions];
+
+	// for all repitions
+	for( i = 0; i < repetitions; i++ ) {
+		// this saves the ids in status
+		void *status;
+		tTimer.start();
+		// create a thread and declare it
+		pthread_create(&threads[i], NULL, declareThread, (void*)i );
+		tTimer.stop();
+		// joins pthread back again saving its id in status
+		err = pthread_join(threads[i], &status);
+		if(err == 0){
+			long tid = *((long *)&status);
+			// adds id to vector to return later
+			threadIDs.push_back(tid);
+			// otherwise if error, show the error
+		} else if(err == -1) {
+			cout << "Error:something went wrong," << err << endl;
+			exit(-1);
+		}
+	}
+	return tTimer.asDouble();
+}
+
+
+inline
+// this function starts the process to determien average thread time
+double Model::getAvgThreadTime(double repetitions) {
+	tTimer.reset();
+	long reps = (long) repetitions;
+	double totalThreadTime = createThread(reps);
+	// this is the average time per thread creation
+	return totalThreadTime / reps;
+}
+
+
+#endif /* MODEL_H_ */
+gam6@maroon31:~/cs232/Project1.5/src$ cat Timer.h
+/* NanoTimer.h provides a simple nano-scale timer.
+ *
+ * Begun by: John Kloosterman, for CS 232 at Calvin College.
+ * Enhanced by: Prof. Adams.
+ *
+ * To use this class, compile/link with the '-lrt' switch.
+ *
+ * In Eclipse: Project > Properties > GCC C++ Linker > Libraries > Libraries > +, add 'rt'
+ */
+
+#ifndef NANO_TIMER_H_
+#define NANO_TIMER_H_
+
+#include <ctime>        // timespec, clock_gettime(), etc.
+#include <iostream>     // C++ I/O
+#include <iomanip>      // setprecision()
+#include <sstream>      // stringstream for in-memory formatting
+using namespace std;
+
+class NanoTimer {
+public:
+	NanoTimer()                  { myTotalTime = 0.0; }
+	void start();
+	void stop();
+	void reset()                 { myTotalTime = 0.0; }
+    string asString() const;
+	double getTotalTime() const  { return myTotalTime; }
+	double asDouble() const;
+
+private:
+	struct timespec myStart;
+	struct timespec myEnd;
+	double myTotalTime;
+};
+
+
+/* start the timer.
+ * Postcondition: myStart contains the current time.
+ */
+inline
+void NanoTimer::start() {
+	clock_gettime(CLOCK_MONOTONIC, &myStart);
+}
+
+/* stop the timer.
+ * Postcondition: myStop contains the current time.
+ */
+inline
+void NanoTimer::stop() {
+	clock_gettime(CLOCK_MONOTONIC, &myEnd);
+	myTotalTime += this->asDouble();
+}
+
+const long NSEC_PER_SEC = 1000000000;
+
+/* Utility function to compute time differences
+ *  (used by asString(), asDouble(), etc.
+ * Receive: end, begin, two timespec values.
+ * Return: end - begin
+ * Based on: http://www.gnu.org/s/libc/manual/html_node/Elapsed-Time.html
+ */
+inline
+timespec operator-(const timespec& end, const timespec& begin)
+{
+	timespec result = begin;
+	/* Perform the carry for the later subtraction. */
+	if (end.tv_nsec < begin.tv_nsec) {
+		int nsec = (begin.tv_nsec - end.tv_nsec) / NSEC_PER_SEC + 1;
+		result.tv_nsec -= NSEC_PER_SEC * nsec;
+		result.tv_sec += nsec;
+	}
+	if (end.tv_nsec - begin.tv_nsec > NSEC_PER_SEC) {
+		int nsec = (end.tv_nsec - begin.tv_nsec) / NSEC_PER_SEC;
+		result.tv_nsec += NSEC_PER_SEC * nsec;
+		result.tv_sec -= nsec;
+	}
+
+	/* Compute the time remaining to wait.
+            tv_usec is certainly positive. */
+	result.tv_sec = end.tv_sec - result.tv_sec;
+	result.tv_nsec = end.tv_nsec - result.tv_nsec;
+
+	return result;
+}
+
+/* String representation.
+ * Return: the processor time (user + system)
+ *    used in the interval between calls to start() and stop(),
+ *    with nanosecond granularity, as a string.
+ */
+inline
+string NanoTimer::asString() const {
+    struct timespec diff = myEnd - myStart;
+    stringstream sstr;
+    sstr << diff.tv_sec
+         << ( (diff.tv_sec == 1) ? " sec, " : " secs, " )
+         << diff.tv_nsec
+         << " nsecs";
+    return sstr.str();
+}
+
+/* Double representation.
+ * Return: the processor time (user + system)
+ *    used in the interval between calls to start() and stop(),
+ *    with nanosecond granularity, as a double.
+ */
+inline
+double NanoTimer::asDouble() const {
+   struct timespec diff = myEnd - myStart;
+   return double(diff.tv_sec) + double(diff.tv_nsec) / double(NSEC_PER_SEC);
+}
+
+
+/* ostream output
+ * Receive: out, an ostream; aTimer, a NanoTimer.
+ * Postcondition: aTimer's double representation
+ *      has been inserted into out.
+ * Return: out (for chaining).
+ */
+inline
+ostream& operator<<(ostream& out, const NanoTimer& aTimer) {
+   out << fixed << showpoint << setprecision(9)
+	   << aTimer.getTotalTime();
+   return out;
+}
+
+/* Utility function to display a timespec structure's values
+ *  (for debugging purposes)
+ */
+inline
+ostream& operator<<(ostream& out, const struct timespec& ts) {
+   out << ts.tv_sec
+       << ( (ts.tv_sec == 1) ? " sec, " : " secs, " )
+       << ts.tv_nsec
+       << " nsecs";
+   return out;
+}
+
+#endif /* NANO_TIMER_H_ */
+
+gam6@maroon31:~/cs232/Project1.5/src$ make all
+make: *** No rule to make target 'all'.  Stop.
+gam6@maroon31:~/cs232/Project1.5/src$ make allcat Timer.hModel.hls[Kcat TextMenuInterface.hls[Kcat TextMenuController.hls[Kcat CommandLineInterface.hls[Kcat CommandLineController.hls[Kcat main.cppls[K./main -r20 -p -tg++ main.cpp -o main -lpthread -std=c++11
+gam6@maroon31:~/cs232/Project1.5/src$ [24P./main -r20 -p -tg++ main.cpp -o main -lpthread -std=c++11
+gam6@maroon31:~/cs232/Project1.5/src$ g++ main.cpp -o main -lpthread -std=c++11
+gam6@maroon31:~/cs232/Project1.5/src$ [Kg++ main.cpp -o main -lpthread -std=c++11
+gam6@maroon31:~/cs232/Project1.5/src$ make all[Kcat Timer.hModel.hls[Kcat Model.hTimer.h[3Pmake allg++ main.cpp -o main -lpthread -std=c++11
+gam6@maroon31:~/cs232/Project1.5/src$ [K./main -r cl -r5 -t p -t p -r5[1P[1P[1P[1P
+
+CommandLineController is using the CommandLineInterface
+
+
+gam6@maroon31:~/cs232/Project1.5/src$ 
+
+Hello from Child Process: 4575
+Hello from Child Process: 4576
+Hello from Child Process: 4577
+Hello from Child Process: 4578
+Hello from Child Process: 4579
+
+
+Hello from Child Thread: 0
+Hello from Child Thread: 1
+Hello from Child Thread: 2
+Hello from Child Thread: 3
+Hello from Child Thread: 4
+
+Average Process Time: 0.000057
+
+Average Thread Time: 0.000008
+./main -cl -t -p -r5 10
+
+CommandLineController is using the CommandLineInterface
+
+
+gam6@maroon31:~/cs232/Project1.5/src$ 
+
+Hello from Child Process: 4591
+Hello from Child Process: 4592
+Hello from Child Process: 4593
+Hello from Child Process: 4594
+Hello from Child Process: 4595
+Hello from Child Process: 4596
+Hello from Child Process: 4597
+Hello from Child Process: 4598
+Hello from Child Process: 4599
+Hello from Child Process: 4600
+
+
+Hello from Child Thread: 0
+Hello from Child Thread: 1
+Hello from Child Thread: 2
+Hello from Child Thread: 3
+Hello from Child Thread: 4
+Hello from Child Thread: 5
+Hello from Child Thread: 6
+Hello from Child Thread: 7
+Hello from Child Thread: 8
+Hello from Child Thread: 9
+
+Average Process Time: 0.000033
+
+Average Thread Time: 0.000002
+./main -cl -t -p -r10  40
+
+CommandLineController is using the CommandLineInterface
+
+
+gam6@maroon31:~/cs232/Project1.5/src$ 
+
+Hello from Child Process: 4632
+Hello from Child Process: 4633
+Hello from Child Process: 4634
+Hello from Child Process: 4635
+Hello from Child Process: 4636
+Hello from Child Process: 4637
+Hello from Child Process: 4638
+Hello from Child Process: 4639
+Hello from Child Process: 4640
+Hello from Child Process: 4641
+Hello from Child Process: 4642
+Hello from Child Process: 4643
+Hello from Child Process: 4644
+Hello from Child Process: 4645
+Hello from Child Process: 4646
+Hello from Child Process: 4647
+Hello from Child Process: 4648
+Hello from Child Process: 4649
+Hello from Child Process: 4650
+Hello from Child Process: 4651
+Hello from Child Process: 4652
+Hello from Child Process: 4653
+Hello from Child Process: 4654
+Hello from Child Process: 4655
+Hello from Child Process: 4656
+Hello from Child Process: 4657
+Hello from Child Process: 4658
+Hello from Child Process: 4659
+Hello from Child Process: 4660
+Hello from Child Process: 4661
+Hello from Child Process: 4662
+Hello from Child Process: 4663
+Hello from Child Process: 4664
+Hello from Child Process: 4665
+Hello from Child Process: 4666
+Hello from Child Process: 4667
+Hello from Child Process: 4668
+Hello from Child Process: 4669
+Hello from Child Process: 4670
+Hello from Child Process: 4671
+
+
+Hello from Child Thread: 0
+Hello from Child Thread: 1
+Hello from Child Thread: 2
+Hello from Child Thread: 3
+Hello from Child Thread: 4
+Hello from Child Thread: 5
+Hello from Child Thread: 6
+Hello from Child Thread: 7
+Hello from Child Thread: 8
+Hello from Child Thread: 9
+Hello from Child Thread: 10
+Hello from Child Thread: 11
+Hello from Child Thread: 12
+Hello from Child Thread: 13
+Hello from Child Thread: 14
+Hello from Child Thread: 15
+Hello from Child Thread: 16
+Hello from Child Thread: 17
+Hello from Child Thread: 18
+Hello from Child Thread: 19
+Hello from Child Thread: 20
+Hello from Child Thread: 21
+Hello from Child Thread: 22
+Hello from Child Thread: 23
+Hello from Child Thread: 24
+Hello from Child Thread: 25
+Hello from Child Thread: 26
+Hello from Child Thread: 27
+Hello from Child Thread: 28
+Hello from Child Thread: 29
+Hello from Child Thread: 30
+Hello from Child Thread: 31
+Hello from Child Thread: 32
+Hello from Child Thread: 33
+Hello from Child Thread: 34
+Hello from Child Thread: 35
+Hello from Child Thread: 36
+Hello from Child Thread: 37
+Hello from Child Thread: 38
+Hello from Child Thread: 39
+
+Average Process Time: 0.000007
+
+Average Thread Time: 0.000000
+./main -cl -t -p -r40                  -rasdfa
+
+
+
+
+
+
+
+===============================================
+Welcome to the User-Friendly Text Interface
+-----------------------------------------------
+
+ Create a Process?
+  -- 1.) Yes
+  -- 0.) No
+
+ (Please Enter a 1 or 0)
+
+ ---> 1
+
+Input Accepted
+
+
+
+
+
+
+
+===============================================
+Welcome to the User-Friendly Text Interface
+-----------------------------------------------
+
+ Create a Thread?
+  -- 1.) Yes
+  -- 0.) No
+
+ (Please Enter a 1 or 0)
+
+ ---> 1
+
+Input Accepted
+
+
+
+
+
+
+
+===============================================
+Welcome to the User-Friendly Text Interface
+-----------------------------------------------
+
+ How many repetitions would you like?
+
+ ---> 5
+
+Input Accepted
+Hello from Child Thread: 0
+Hello from Child Thread: 1
+Hello from Child Thread: 2
+Hello from Child Thread: 3
+Hello from Child Thread: 4
+Average Thread Time: 0.000004
+gam6@maroon31:~/cs232/Project1.5/src$ Hello from Child Process: 4721
+Hello from Child Process: 4722
+Hello from Child Process: 4723
+Hello from Child Process: 4724
+Hello from Child Process: 4725
+Average Process Time: 0.000053
+./main -rasdfa       -t -p sdf           n
+
+
+
+
+
+
+
+===============================================
+Welcome to the User-Friendly Text Interface
+-----------------------------------------------
+
+ Create a Process?
+  -- 1.) Yes
+  -- 0.) No
+
+ (Please Enter a 1 or 0)
+
+ ---> 0
+
+Input Accepted
+
+
+
+
+
+
+
+===============================================
+Welcome to the User-Friendly Text Interface
+-----------------------------------------------
+
+ Create a Thread?
+  -- 1.) Yes
+  -- 0.) No
+
+ (Please Enter a 1 or 0)
+
+ ---> 1
+
+Input Accepted
+
+
+
+
+
+
+
+===============================================
+Welcome to the User-Friendly Text Interface
+-----------------------------------------------
+
+ How many repetitions would you like?
+
+ ---> 10
+
+Input Accepted
+Hello from Child Thread: 0
+Hello from Child Thread: 1
+Hello from Child Thread: 2
+Hello from Child Thread: 3
+Hello from Child Thread: 4
+Hello from Child Thread: 5
+Hello from Child Thread: 6
+Hello from Child Thread: 7
+Hello from Child Thread: 8
+Hello from Child Thread: 9
+Average Thread Time: 0.000002
+gam6@maroon31:~/cs232/Project1.5/src$ ./main
+
+gam6@maroon31:~/cs232/Project1.5/src$ Hello from Child Process: 4779
+Average Process Time: 0.000279
+./main
+
+
+
+
+
+
+
+===============================================
+Welcome to the User-Friendly Text Interface
+-----------------------------------------------
+
+ Create a Process?
+  -- 1.) Yes
+  -- 0.) No
+
+ (Please Enter a 1 or 0)
+
+ ---> 1
+
+Input Accepted
+
+
+
+
+
+
+
+===============================================
+Welcome to the User-Friendly Text Interface
+-----------------------------------------------
+
+ Create a Thread?
+  -- 1.) Yes
+  -- 0.) No
+
+ (Please Enter a 1 or 0)
+
+ ---> 1
+
+Input Accepted
+
+
+
+
+
+
+
+===============================================
+Welcome to the User-Friendly Text Interface
+-----------------------------------------------
+
+ How many repetitions would you like?
+
+ ---> 20
+
+Input Accepted
+Hello from Child Thread: 0
+Hello from Child Thread: 1
+Hello from Child Thread: 2
+Hello from Child Thread: 3
+Hello from Child Thread: 4
+Hello from Child Thread: 5
+Hello from Child Thread: 6
+Hello from Child Thread: 7
+Hello from Child Thread: 8
+Hello from Child Thread: 9
+Hello from Child Thread: 10
+Hello from Child Thread: 11
+Hello from Child Thread: 12
+Hello from Child Thread: 13
+Hello from Child Thread: 14
+Hello from Child Thread: 15
+Hello from Child Thread: 16
+Hello from Child Thread: 17
+Hello from Child Thread: 18
+Hello from Child Thread: 19
+Average Thread Time: 0.000000
+gam6@maroon31:~/cs232/Project1.5/src$ Hello from Child Process: 5951
+Hello from Child Process: 5952
+Hello from Child Process: 5953
+Hello from Child Process: 5954
+Hello from Child Process: 5955
+Hello from Child Process: 5956
+Hello from Child Process: 5957
+Hello from Child Process: 5958
+Hello from Child Process: 5959
+Hello from Child Process: 5960
+Hello from Child Process: 5961
+Hello from Child Process: 5962
+Hello from Child Process: 5963
+Hello from Child Process: 5964
+Hello from Child Process: 5965
+Hello from Child Process: 5966
+Hello from Child Process: 5967
+Hello from Child Process: 5968
+Hello from Child Process: 5969
+Hello from Child Process: 5970
+Average Process Time: 0.000003
+./main -cl -t -r5
+
+CommandLineController is using the CommandLineInterface
+
+
+
+
+
+
+Hello from Child Thread: 0
+Hello from Child Thread: 1
+Hello from Child Thread: 2
+Hello from Child Thread: 3
+Hello from Child Thread: 4
+
+Average Process Time: 0.000000
+
+Average Thread Time: 0.000005
+gam6@maroon31:~/cs232/Project1.5/src$ ^C
+gam6@maroon31:~/cs232/Project1.5/src$ exit
+
+Script done on Mon 25 Feb 2019 10:55:36 PM EST
