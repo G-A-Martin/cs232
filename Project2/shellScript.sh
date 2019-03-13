@@ -1,0 +1,127 @@
+#!/bin/sh
+
+
+#Gavin Martin
+# march 12, 2019
+# cs232 @ calvin college
+# Extra credit -i was completed
+
+
+# This will delete: 
+# files that have a core in their name
+# files that end with ~
+# files that begin and end in #
+# files that end in .o
+# files that are executable (end in .exe)
+
+
+# chmod +x shellscript.sh
+
+# this function asks users if they want to delete a file
+# param: $1 is the filename
+askUsersBeforeDelete() {
+  echo "Would you like to delete this file:" $1
+  read -p "Delete it? (Y/N): " confirm
+  if [[ $confirm == [yY] ]]
+  then
+    echo "You deleted: " $1
+  fi
+}
+
+
+#this function cleans the directory of all unwanted files specified above
+#param: $1 is directory name
+#param: $2 is interface -i or -interface
+cleanDirectory() {
+    echo "cleaning directory"
+    for filename in $1/*; do 
+        #this detects directories
+        if [ -d $filename ]
+        #this is the recursive function
+        then
+            cleanDirectory $filename $2
+        fi
+        #this removes all strings that end in ~
+        if [ "" == "${filename##*"~"}" ]
+        then
+            if [ -z $2 ]
+            then 
+                echo "removing ~:" + $filename
+                rm -f $filename
+            elif [ $2 == "-i" ] || [ $2 == "-interface" ]
+            then
+                askUsersBeforeDelete $filename
+            fi
+        #this finds and removes anything with the word Core in it
+        elif [ $filename != "${filename%"core"*}" ]  # if core appears, it'll change the string makin an inequality
+        then
+            if [ -z $2 ]
+            then 
+                echo "removing ~:" + $filename
+                rm -f $filename
+            elif [ $2 == "-i" ] || [ $2 == "-interface" ]
+            then
+                askUsersBeforeDelete $filename
+            fi
+        elif [ $filename != "${filename%"Core"*}" ]
+        then
+            if [ -z $2 ]
+            then 
+                echo "removing ~:" + $filename
+                rm -f $filename
+            elif [ $2 == "-i" ] || [ $2 == "-interface" ]
+            then
+                askUsersBeforeDelete $filename
+            fi
+        # it detects strings starting and ending with #, 
+        elif [ "" == "${filename##*"#"}" ] && [ "$1/" == "${filename%%"#"*}" ]
+        then
+            if [ -z $2 ]
+            then 
+                echo "removing ~:" + $filename
+                rm -f $filename
+            elif [ $2 == "-i" ] || [ $2 == "-interface" ]
+            then
+                askUsersBeforeDelete $filename
+            fi
+        #this cleans the files ending in .o
+        elif [ "" == "${filename##*".o"}" ]
+        then
+            if [ -z $2 ]
+            then 
+                echo "removing ~:" + $filename
+                rm -f $filename
+            elif [ $2 == "-i" ] || [ $2 == "-interface" ]
+            then
+                askUsersBeforeDelete $filename
+            fi
+        #this cleans the files with executable permissions
+        elif [ -x $filename ]
+        then
+            if [ -z $2 ]
+            then 
+                echo "removing ~:" + $filename
+                rm -f $filename
+            elif [ $2 = "-i" ] || [ $2 = "-interface" ]
+            then
+                askUsersBeforeDelete $filename
+            fi
+        fi
+
+    done
+}
+
+
+# if the clean command was used and parameter 2 is empty
+if [ $1 = "clean" ] && [ -z $2 ]
+then
+    echo "Clean command was entered, it was clean"
+    cleanDirectory $2 $3 $4
+# if clean command is used and paramter 2 is a valid directory
+elif [ $1 = "clean" ] && [ -d $2 ] 
+then
+    echo "At least two commands were entered and directory exists"
+    cleanDirectory $2 $3 $4
+else
+    echo "clean wasn't used, or bad directory"
+fi

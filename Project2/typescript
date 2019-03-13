@@ -1,0 +1,482 @@
+Script started on Tue 12 Mar 2019 11:54:48 PM EDT
+gam6@maroon15:~/cs232/Project2$ lscd Project2ls[K[Klscd Project2ls[K[Kls
+partA  partB  partC  project2.script  shellScript.sh  testDir  typescript
+gam6@maroon15:~/cs232/Project2$ cat shelS lScript.sh
+#!/bin/sh
+
+
+#Gavin Martin
+# march 12, 2019
+# cs232 @ calvin college
+# Extra credit -i was completed
+
+
+# This will delete: 
+# files that have a core in their name
+# files that end with ~
+# files that begin and end in #
+# files that end in .o
+# files that are executable (end in .exe)
+
+
+# chmod +x shellscript.sh
+
+# this function asks users if they want to delete a file
+# param: $1 is the filename
+askUsersBeforeDelete() {
+  echo "Would you like to delete this file:" $1
+  read -p "Delete it? (Y/N): " confirm
+  if [[ $confirm == [yY] ]]
+  then
+    echo "You deleted: " $1
+  fi
+}
+
+
+#this function cleans the directory of all unwanted files specified above
+#param: $1 is directory name
+#param: $2 is interface -i or -interface
+cleanDirectory() {
+    echo "cleaning directory"
+    for filename in $1/*; do 
+        #this detects directories
+        if [ -d $filename ]
+        #this is the recursive function
+        then
+            cleanDirectory $filename $2
+        fi
+        #this removes all strings that end in ~
+        if [ "" == "${filename##*"~"}" ]
+        then
+            if [ -z $2 ]
+            then 
+                echo "removing ~:" + $filename
+                rm -f $filename
+            elif [ $2 == "-i" ] || [ $2 == "-interface" ]
+            then
+                askUsersBeforeDelete $filename
+            fi
+        #this finds and removes anything with the word Core in it
+        elif [ $filename != "${filename%"core"*}" ]  # if core appears, it'll change the string makin an inequality
+        then
+            if [ -z $2 ]
+            then 
+                echo "removing ~:" + $filename
+                rm -f $filename
+            elif [ $2 == "-i" ] || [ $2 == "-interface" ]
+            then
+                askUsersBeforeDelete $filename
+            fi
+        elif [ $filename != "${filename%"Core"*}" ]
+        then
+            if [ -z $2 ]
+            then 
+                echo "removing ~:" + $filename
+                rm -f $filename
+            elif [ $2 == "-i" ] || [ $2 == "-interface" ]
+            then
+                askUsersBeforeDelete $filename
+            fi
+        # it detects strings starting and ending with #, 
+        elif [ "" == "${filename##*"#"}" ] && [ "$1/" == "${filename%%"#"*}" ]
+        then
+            if [ -z $2 ]
+            then 
+                echo "removing ~:" + $filename
+                rm -f $filename
+            elif [ $2 == "-i" ] || [ $2 == "-interface" ]
+            then
+                askUsersBeforeDelete $filename
+            fi
+        #this cleans the files ending in .o
+        elif [ "" == "${filename##*".o"}" ]
+        then
+            if [ -z $2 ]
+            then 
+                echo "removing ~:" + $filename
+                rm -f $filename
+            elif [ $2 == "-i" ] || [ $2 == "-interface" ]
+            then
+                askUsersBeforeDelete $filename
+            fi
+        #this cleans the files with executable permissions
+        elif [ -x $filename ]
+        then
+            if [ -z $2 ]
+            then 
+                echo "removing ~:" + $filename
+                rm -f $filename
+            elif [ $2 = "-i" ] || [ $2 = "-interface" ]
+            then
+                askUsersBeforeDelete $filename
+            fi
+        fi
+
+    done
+}
+
+
+# if the clean command was used and parameter 2 is empty
+if [ $1 = "clean" ] && [ -z $2 ]
+then
+    echo "Clean command was entered, it was clean"
+    cleanDirectory $2 $3 $4
+# if clean command is used and paramter 2 is a valid directory
+elif [ $1 = "clean" ] && [ -d $2 ] 
+then
+    echo "At least two commands were entered and directory exists"
+    cleanDirectory $2 $3 $4
+else
+    echo "clean wasn't used, or bad directory"
+fi
+gam6@maroon15:~/cs232/Project2$ bash ./S shellScript.s sh clean partB
+At least two commands were entered and directory exists
+cleaning directory
+cleaning directory
+cleaning directory
+cleaning directory
+removing ~: + partB/B1/B1a/goodbye/goodbye
+removing ~: + partB/B1/B1a/goodbye/#goodbye.c#
+removing ~: + partB/B1/B1a/goodbye/goodbye.c~
+removing ~: + partB/B1/B1a/hello
+removing ~: + partB/B1/B1a/#hello.c#
+removing ~: + partB/B1/B1a/hello.c~
+cleaning directory
+removing ~: + partB/B1/B1b/goodbye
+removing ~: + partB/B1/B1b/#goodbye.c#
+removing ~: + partB/B1/B1b/goodbye.c~
+removing ~: + partB/B1/B1b/#hay.c#
+removing ~: + partB/B1/B1b/hay.c~
+removing ~: + partB/B1/B1b/#hey.c#
+removing ~: + partB/B1/B1b/hey.c~
+cleaning directory
+removing ~: + partB/B1/B1c/goodbye
+removing ~: + partB/B1/B1c/#goodbye.c#
+removing ~: + partB/B1/B1c/goodbye.c~
+removing ~: + partB/B1/B1c/hay
+removing ~: + partB/B1/B1c/#hay.c#
+removing ~: + partB/B1/B1c/hay.c~
+removing ~: + partB/B1/B1c/#hay.h#
+removing ~: + partB/B1/B1c/hay.h~
+removing ~: + partB/B1/B1c/hay.o
+removing ~: + partB/B1/B1c/hey
+removing ~: + partB/B1/B1c/#hey.c#
+removing ~: + partB/B1/B1c/hey.c~
+removing ~: + partB/B1/B1c/#hey.h#
+removing ~: + partB/B1/B1c/hey.h~
+removing ~: + partB/B1/B1c/hey.o
+removing ~: + partB/B1/B1c/main
+removing ~: + partB/B1/B1c/#main.c#
+removing ~: + partB/B1/B1c/main.c~
+removing ~: + partB/B1/B1c/main.o
+cleaning directory
+cleaning directory
+cleaning directory
+cleaning directory
+removing ~: + partB/B3/B3a/goodbye/goodbye
+removing ~: + partB/B3/B3a/goodbye/#goodbye.c#
+removing ~: + partB/B3/B3a/goodbye/goodbye.c~
+removing ~: + partB/B3/B3a/hello
+removing ~: + partB/B3/B3a/#hello.c#
+removing ~: + partB/B3/B3a/hello.c~
+cleaning directory
+removing ~: + partB/B3/B3b/goodbye
+removing ~: + partB/B3/B3b/#goodbye.c#
+removing ~: + partB/B3/B3b/goodbye.c~
+removing ~: + partB/B3/B3b/#hay.c#
+removing ~: + partB/B3/B3b/hay.c~
+removing ~: + partB/B3/B3b/#hey.c#
+removing ~: + partB/B3/B3b/hey.c~
+cleaning directory
+removing ~: + partB/B3/B3c/goodbye
+removing ~: + partB/B3/B3c/#goodbye.c#
+removing ~: + partB/B3/B3c/goodbye.c~
+removing ~: + partB/B3/B3c/hay
+removing ~: + partB/B3/B3c/#hay.c#
+removing ~: + partB/B3/B3c/hay.c~
+removing ~: + partB/B3/B3c/#hay.h#
+removing ~: + partB/B3/B3c/hay.h~
+removing ~: + partB/B3/B3c/hay.o
+removing ~: + partB/B3/B3c/hey
+removing ~: + partB/B3/B3c/#hey.c#
+removing ~: + partB/B3/B3c/hey.c~
+removing ~: + partB/B3/B3c/#hey.h#
+removing ~: + partB/B3/B3c/hey.h~
+removing ~: + partB/B3/B3c/hey.o
+removing ~: + partB/B3/B3c/main
+removing ~: + partB/B3/B3c/#main.c#
+removing ~: + partB/B3/B3c/main.c~
+removing ~: + partB/B3/B3c/main.o
+gam6@maroon15:~/cs232/Project2$ bash ./shellScript.sh clean partB C
+At least two commands were entered and directory exists
+cleaning directory
+cleaning directory
+removing ~: + partC/coreTest/core
+removing ~: + partC/coreTest/coreTest
+removing ~: + partC/coreTest/coreTest.c
+removing ~: + partC/coreTest/Makefile
+removing ~: + partC/coreTest/Makefile
+cleaning directory
+removing ~: + partC/goodbye/goodbye
+removing ~: + partC/goodbye/#goodbye.c#
+removing ~: + partC/goodbye/goodbye.c~
+removing ~: + partC/hello
+removing ~: + partC/#hello.c#
+removing ~: + partC/hello.c~
+gam6@maroon15:~/cs232/Project2$ bash ./shellScript.sh clean partC A -i
+At least two commands were entered and directory exists
+cleaning directory
+cleaning directory
+Would you like to delete this file: partA/coreTest/core
+Delete it? (Y/N): Y
+You deleted:  partA/coreTest/core
+Would you like to delete this file: partA/coreTest/coreTest
+Delete it? (Y/N): y
+You deleted:  partA/coreTest/coreTest
+Would you like to delete this file: partA/coreTest/coreTest.c
+Delete it? (Y/N): y
+You deleted:  partA/coreTest/coreTest.c
+Would you like to delete this file: partA/coreTest/Makefile
+Delete it? (Y/N): n
+Would you like to delete this file: partA/coreTest/Makefile
+Delete it? (Y/N): n
+cleaning directory
+Would you like to delete this file: partA/goodbye/goodbye
+Delete it? (Y/N): n
+Would you like to delete this file: partA/goodbye/#goodbye.c#
+Delete it? (Y/N): y
+You deleted:  partA/goodbye/#goodbye.c#
+Would you like to delete this file: partA/goodbye/goodbye.c~
+Delete it? (Y/N): y
+You deleted:  partA/goodbye/goodbye.c~
+Would you like to delete this file: partA/hello
+Delete it? (Y/N): y
+You deleted:  partA/hello
+Would you like to delete this file: partA/#hello.c#
+Delete it? (Y/N): y
+You deleted:  partA/#hello.c#
+Would you like to delete this file: partA/hello.c~
+Delete it? (Y/N): y
+You deleted:  partA/hello.c~
+gam6@maroon15:~/cs232/Project2$ bash ./shellScript.sh clean partA -i[1P[1P[1P[1P[1P[1@t[1@e[1@s[1@t[1@D[1@i[1@r
+At least two commands were entered and directory exists
+cleaning directory
+cleaning directory
+Would you like to delete this file: testDir/aDirectory/wassup.o
+Delete it? (Y/N): Y
+You deleted:  testDir/aDirectory/wassup.o
+Would you like to delete this file: testDir/aDirectory/wassup.o
+Delete it? (Y/N): y
+You deleted:  testDir/aDirectory/wassup.o
+Would you like to delete this file: testDir/agari.o
+Delete it? (Y/N): y
+You deleted:  testDir/agari.o
+Would you like to delete this file: testDir/barbequeChips~
+Delete it? (Y/N): y
+You deleted:  testDir/barbequeChips~
+Would you like to delete this file: testDir/doritos~
+Delete it? (Y/N): yy
+Would you like to delete this file: testDir/#hiThere#
+Delete it? (Y/N): n
+Would you like to delete this file: testDir/myBigCore
+Delete it? (Y/N): n
+Would you like to delete this file: testDir/mycore
+Delete it? (Y/N): n
+gam6@maroon15:~/cs232/Project2$ bash ../../../cs/232/projects/2/2019
+../../../cs/232/projects/2/2019: ../../../cs/232/projects/2/2019: is a directory
+gam6@maroon15:~/cs232/Project2$ [Kgam6@maroon15:~/cs232/Project2$ bash ../../../cs/232/projects/2/2019 ..[1@.[1@/[1@s[1@h[1@e[1@l[1@l[1@S[1@c[1@r[1@i[1@p[1@t..[1@.[1@s[1@h[1@ [1@c[1@l[1@e[1@a[1@n[1@ ../../../cs/232/projects/2/2019
+At least two commands were entered and directory exists
+cleaning directory
+cleaning directory
+cleaning directory
+removing ~: + ../../../cs/232/projects/2/2019/partA/coreTest/core
+rm: cannot remove '../../../cs/232/projects/2/2019/partA/coreTest/core': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partA/coreTest/coreTest
+rm: cannot remove '../../../cs/232/projects/2/2019/partA/coreTest/coreTest': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partA/coreTest/coreTest.c
+rm: cannot remove '../../../cs/232/projects/2/2019/partA/coreTest/coreTest.c': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partA/coreTest/Makefile
+rm: cannot remove '../../../cs/232/projects/2/2019/partA/coreTest/Makefile': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partA/coreTest/Makefile
+rm: cannot remove '../../../cs/232/projects/2/2019/partA/coreTest/Makefile': Permission denied
+cleaning directory
+removing ~: + ../../../cs/232/projects/2/2019/partA/goodbye/goodbye
+rm: cannot remove '../../../cs/232/projects/2/2019/partA/goodbye/goodbye': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partA/goodbye/#goodbye.c#
+rm: cannot remove '../../../cs/232/projects/2/2019/partA/goodbye/#goodbye.c#': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partA/goodbye/goodbye.c~
+rm: cannot remove '../../../cs/232/projects/2/2019/partA/goodbye/goodbye.c~': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partA/hello
+rm: cannot remove '../../../cs/232/projects/2/2019/partA/hello': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partA/#hello.c#
+rm: cannot remove '../../../cs/232/projects/2/2019/partA/#hello.c#': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partA/hello.c~
+rm: cannot remove '../../../cs/232/projects/2/2019/partA/hello.c~': Permission denied
+cleaning directory
+cleaning directory
+cleaning directory
+cleaning directory
+removing ~: + ../../../cs/232/projects/2/2019/partB/B1/B1a/goodbye/goodbye
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B1/B1a/goodbye/goodbye': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B1/B1a/goodbye/#goodbye.c#
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B1/B1a/goodbye/#goodbye.c#': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B1/B1a/goodbye/goodbye.c~
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B1/B1a/goodbye/goodbye.c~': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B1/B1a/hello
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B1/B1a/hello': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B1/B1a/#hello.c#
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B1/B1a/#hello.c#': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B1/B1a/hello.c~
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B1/B1a/hello.c~': Permission denied
+cleaning directory
+removing ~: + ../../../cs/232/projects/2/2019/partB/B1/B1b/goodbye
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B1/B1b/goodbye': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B1/B1b/#goodbye.c#
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B1/B1b/#goodbye.c#': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B1/B1b/goodbye.c~
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B1/B1b/goodbye.c~': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B1/B1b/#hay.c#
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B1/B1b/#hay.c#': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B1/B1b/hay.c~
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B1/B1b/hay.c~': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B1/B1b/#hey.c#
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B1/B1b/#hey.c#': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B1/B1b/hey.c~
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B1/B1b/hey.c~': Permission denied
+cleaning directory
+removing ~: + ../../../cs/232/projects/2/2019/partB/B1/B1c/goodbye
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B1/B1c/goodbye': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B1/B1c/#goodbye.c#
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B1/B1c/#goodbye.c#': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B1/B1c/goodbye.c~
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B1/B1c/goodbye.c~': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B1/B1c/hay
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B1/B1c/hay': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B1/B1c/#hay.c#
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B1/B1c/#hay.c#': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B1/B1c/hay.c~
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B1/B1c/hay.c~': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B1/B1c/#hay.h#
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B1/B1c/#hay.h#': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B1/B1c/hay.h~
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B1/B1c/hay.h~': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B1/B1c/hay.o
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B1/B1c/hay.o': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B1/B1c/hey
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B1/B1c/hey': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B1/B1c/#hey.c#
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B1/B1c/#hey.c#': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B1/B1c/hey.c~
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B1/B1c/hey.c~': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B1/B1c/#hey.h#
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B1/B1c/#hey.h#': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B1/B1c/hey.h~
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B1/B1c/hey.h~': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B1/B1c/hey.o
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B1/B1c/hey.o': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B1/B1c/main
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B1/B1c/main': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B1/B1c/#main.c#
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B1/B1c/#main.c#': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B1/B1c/main.c~
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B1/B1c/main.c~': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B1/B1c/main.o
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B1/B1c/main.o': Permission denied
+cleaning directory
+cleaning directory
+cleaning directory
+cleaning directory
+removing ~: + ../../../cs/232/projects/2/2019/partB/B3/B3a/goodbye/goodbye
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B3/B3a/goodbye/goodbye': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B3/B3a/goodbye/#goodbye.c#
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B3/B3a/goodbye/#goodbye.c#': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B3/B3a/goodbye/goodbye.c~
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B3/B3a/goodbye/goodbye.c~': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B3/B3a/hello
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B3/B3a/hello': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B3/B3a/#hello.c#
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B3/B3a/#hello.c#': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B3/B3a/hello.c~
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B3/B3a/hello.c~': Permission denied
+cleaning directory
+removing ~: + ../../../cs/232/projects/2/2019/partB/B3/B3b/goodbye
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B3/B3b/goodbye': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B3/B3b/#goodbye.c#
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B3/B3b/#goodbye.c#': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B3/B3b/goodbye.c~
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B3/B3b/goodbye.c~': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B3/B3b/#hay.c#
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B3/B3b/#hay.c#': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B3/B3b/hay.c~
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B3/B3b/hay.c~': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B3/B3b/#hey.c#
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B3/B3b/#hey.c#': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B3/B3b/hey.c~
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B3/B3b/hey.c~': Permission denied
+cleaning directory
+removing ~: + ../../../cs/232/projects/2/2019/partB/B3/B3c/goodbye
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B3/B3c/goodbye': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B3/B3c/#goodbye.c#
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B3/B3c/#goodbye.c#': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B3/B3c/goodbye.c~
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B3/B3c/goodbye.c~': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B3/B3c/hay
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B3/B3c/hay': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B3/B3c/#hay.c#
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B3/B3c/#hay.c#': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B3/B3c/hay.c~
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B3/B3c/hay.c~': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B3/B3c/#hay.h#
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B3/B3c/#hay.h#': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B3/B3c/hay.h~
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B3/B3c/hay.h~': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B3/B3c/hay.o
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B3/B3c/hay.o': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B3/B3c/hey
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B3/B3c/hey': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B3/B3c/#hey.c#
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B3/B3c/#hey.c#': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B3/B3c/hey.c~
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B3/B3c/hey.c~': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B3/B3c/#hey.h#
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B3/B3c/#hey.h#': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B3/B3c/hey.h~
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B3/B3c/hey.h~': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B3/B3c/hey.o
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B3/B3c/hey.o': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B3/B3c/main
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B3/B3c/main': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B3/B3c/#main.c#
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B3/B3c/#main.c#': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B3/B3c/main.c~
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B3/B3c/main.c~': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partB/B3/B3c/main.o
+rm: cannot remove '../../../cs/232/projects/2/2019/partB/B3/B3c/main.o': Permission denied
+cleaning directory
+cleaning directory
+removing ~: + ../../../cs/232/projects/2/2019/partC/coreTest/core
+rm: cannot remove '../../../cs/232/projects/2/2019/partC/coreTest/core': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partC/coreTest/coreTest
+rm: cannot remove '../../../cs/232/projects/2/2019/partC/coreTest/coreTest': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partC/coreTest/coreTest.c
+rm: cannot remove '../../../cs/232/projects/2/2019/partC/coreTest/coreTest.c': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partC/coreTest/Makefile
+rm: cannot remove '../../../cs/232/projects/2/2019/partC/coreTest/Makefile': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partC/coreTest/Makefile
+rm: cannot remove '../../../cs/232/projects/2/2019/partC/coreTest/Makefile': Permission denied
+cleaning directory
+removing ~: + ../../../cs/232/projects/2/2019/partC/goodbye/goodbye
+rm: cannot remove '../../../cs/232/projects/2/2019/partC/goodbye/goodbye': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partC/goodbye/#goodbye.c#
+rm: cannot remove '../../../cs/232/projects/2/2019/partC/goodbye/#goodbye.c#': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partC/goodbye/goodbye.c~
+rm: cannot remove '../../../cs/232/projects/2/2019/partC/goodbye/goodbye.c~': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partC/hello
+rm: cannot remove '../../../cs/232/projects/2/2019/partC/hello': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partC/#hello.c#
+rm: cannot remove '../../../cs/232/projects/2/2019/partC/#hello.c#': Permission denied
+removing ~: + ../../../cs/232/projects/2/2019/partC/hello.c~
+rm: cannot remove '../../../cs/232/projects/2/2019/partC/hello.c~': Permission denied
+gam6@maroon15:~/cs232/Project2$ exit
+
+Script done on Wed 13 Mar 2019 12:01:04 AM EDT
